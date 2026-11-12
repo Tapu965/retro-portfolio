@@ -3,7 +3,7 @@ import { useCallback, useRef } from 'react';
 type BeepOptions = {
   frequency?: number;
   duration?: number; // ms
-  volume?: number;   // 0..1
+  volume?: number; // 0..1
   type?: OscillatorType;
 };
 
@@ -45,10 +45,7 @@ export function useSound() {
         osc.frequency.setValueAtTime(frequency, ctx.currentTime);
 
         gain.gain.setValueAtTime(volume, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(
-          0.0001,
-          ctx.currentTime + duration / 1000
-        );
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration / 1000);
 
         osc.connect(gain);
         gain.connect(ctx.destination);

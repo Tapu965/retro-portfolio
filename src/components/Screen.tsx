@@ -42,9 +42,7 @@ export default function Screen({ children }: ScreenProps) {
               }
             >
               {/* --- Desktop content lives here --- */}
-              <div className="relative h-full w-full overflow-hidden">
-                {children}
-              </div>
+              <div className="relative h-full w-full overflow-hidden">{children}</div>
 
               {/* --- Visual overlay (scanlines, vignette, flicker) --- */}
               <CRTOverlay />
@@ -54,7 +52,8 @@ export default function Screen({ children }: ScreenProps) {
                 className="pointer-events-none absolute inset-0 z-[60]"
                 style={{
                   borderRadius: 'var(--screen-radius)',
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 25%)',
+                  background:
+                    'linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 25%)',
                 }}
               />
             </div>

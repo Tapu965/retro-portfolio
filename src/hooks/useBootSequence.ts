@@ -55,7 +55,7 @@ export function useBootSequence({
     let elapsed = 300; // initial delay before first line
 
     lines.forEach((line, index) => {
-      const speed = line.instant ? 0 : line.speed ?? 18;
+      const speed = line.instant ? 0 : (line.speed ?? 18);
       const typingDuration = line.instant ? 0 : line.text.length * speed;
 
       // Start typing this line
