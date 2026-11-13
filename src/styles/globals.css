@@ -72,3 +72,27 @@ body {
     transition-duration: 0.01ms !important;
   }
 }
+/* react-rnd resize handle */
+.rnd-resize-handle {
+  background: transparent;
+  position: relative;
+}
+.rnd-resize-handle::after {
+  content: '';
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  width: 10px;
+  height: 10px;
+  background: repeating-linear-gradient(
+    -45deg,
+    #7ef0d4 0,
+    #7ef0d4 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  border-right: 2px solid #7ef0d4;
+  border-bottom: 2px solid #7ef0d4;
+  opacity: 0.7;
+  pointer-events: none;
+}

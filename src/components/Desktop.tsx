@@ -1,31 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import DesktopIcon from './DesktopIcon';
 import Taskbar from './Taskbar';
+import WindowManager from './WindowManager';
 import { DESKTOP_ICONS } from '../data/icons';
+import { useWindowStore } from '../store/useWindowStore';
 import type { AppKey } from '../types/icon';
 
 export default function Desktop() {
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [toast, setToast] = useState<string | null>(null);
+  const open = useWindowStore((s) => s.open);
+  const windows = useWindowStore((s) => s.windows);
+  const close = useWindowStore((s) => s.close);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && windows.length > 0) {
+        close(windows[windows.length - 1].id);
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [windows, close]);
 
   const handleOpen = (appKey: AppKey) => {
-    // TODO Day 5: windowStore.open(appKey)
-    const label = DESKTOP_ICONS.find((i) => i.appKey === appKey)?.label ?? appKey;
-    setToast(`opening ${label}...`);
-
-    // auto-dismiss toast
-    window.setTimeout(() => setToast(null), 1400);
+    open({ appKey });
   };
+
+  // Day 6 fills this. For now, every app shows a placeholder.
+  const appRegistry: Record<string, React.ReactNode> = {};
 
   return (
     <motion.div
+      id="desktop-root"
       className="relative h-full w-full overflow-hidden bg-desktop"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.35 }}
     >
-      {/* Subtle desktop wallpaper pattern */}
+      {/* Wallpaper */}
       <div
         className="pointer-events-none absolute inset-0 opacity-30"
         style={{
@@ -43,17 +56,8 @@ export default function Desktop() {
         </div>
       </div>
 
-      {/* Toast (temporary — Day 5 replaces this with real windows) */}
-      {toast && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0 }}
-          className="pointer-events-none absolute bottom-16 left-1/2 z-50 -translate-x-1/2 rounded border-2 border-phosphor bg-window px-4 py-2 font-mono text-sm text-phosphor-bright shadow-[0_4px_0_#051010]"
-        >
-          {toast}
-        </motion.div>
-      )}
+      {/* Windows */}
+      <WindowManager appRegistry={appRegistry} />
 
       {/* Taskbar */}
       <Taskbar

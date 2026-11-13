@@ -1,5 +1,6 @@
 import { ComputerIcon } from './icons';
 import { useClock } from '../hooks/useClock';
+import { useWindowStore } from '../store/useWindowStore';
 
 interface Props {
   onStartClick?: () => void;
@@ -9,10 +10,12 @@ interface Props {
 
 export default function Taskbar({ onStartClick, soundEnabled, onToggleSound }: Props) {
   const time = useClock();
+  const windows = useWindowStore((s) => s.windows);
+  const taskbarClick = useWindowStore((s) => s.taskbarClick);
 
   return (
     <div
-      className="absolute bottom-0 left-0 right-0 z-40 flex h-12 items-stretch gap-1.5 border-t-2 border-window-border bg-window-header px-2 py-1 shadow-[0_-4px_12px_rgba(0,0,0,0.6)]"
+      className="absolute bottom-0 left-0 right-0 z-50 flex h-12 items-stretch gap-1.5 border-t-2 border-window-border bg-window-header px-2 py-1 shadow-[0_-4px_12px_rgba(0,0,0,0.6)]"
       role="toolbar"
       aria-label="Taskbar"
     >
@@ -36,19 +39,41 @@ export default function Taskbar({ onStartClick, soundEnabled, onToggleSound }: P
         <span className="hidden sm:inline">START</span>
       </button>
 
-      {/* Divider */}
       <div className="w-px bg-phosphor-dim/40" />
 
-      {/* Window tabs placeholder — Day 5 fills this */}
-      <div className="flex flex-1 items-center gap-1.5 overflow-hidden">
-        <div className="truncate font-mono text-xs text-phosphor-dim">
-          {/* empty for now */}
-        </div>
+      {/* Window tabs */}
+      <div className="flex flex-1 items-center gap-1 overflow-x-auto">
+        {windows.map((w, idx) => {
+          const isFocused = idx === windows.length - 1 && !w.isMinimized;
+          return (
+            <button
+              key={w.id}
+              type="button"
+              onClick={() => taskbarClick(w.id)}
+              className={[
+                'flex h-full max-w-[180px] items-center gap-1.5 truncate px-2 font-mono text-xs',
+                'border-2 transition-colors duration-75',
+                isFocused
+                  ? 'border-phosphor bg-window text-phosphor-bright shadow-[inset_1px_1px_0_#b5ffe0]'
+                  : w.isMinimized
+                    ? 'border-phosphor-dim/40 bg-desktop/60 text-phosphor-dim'
+                    : 'border-phosphor-dim bg-desktop text-phosphor',
+                'hover:text-phosphor-bright',
+              ].join(' ')}
+              title={w.title}
+            >
+              <span
+                className="h-2 w-2 shrink-0 bg-phosphor/80"
+                style={{ clipPath: 'polygon(0 0, 100% 0, 0 100%)' }}
+              />
+              <span className="truncate">{w.title}</span>
+            </button>
+          );
+        })}
       </div>
 
       {/* System tray */}
       <div className="flex items-center gap-2 border-l border-phosphor-dim/40 pl-3 pr-1">
-        {/* Sound toggle */}
         <button
           type="button"
           onClick={onToggleSound}
@@ -57,8 +82,6 @@ export default function Taskbar({ onStartClick, soundEnabled, onToggleSound }: P
         >
           {soundEnabled ? '🔊' : '🔇'}
         </button>
-
-        {/* Clock */}
         <div className="min-w-[64px] border border-phosphor-dim/60 bg-desktop px-2 py-1 text-center font-mono text-xs text-phosphor-bright shadow-[inset_1px_1px_0_#1e5148]">
           {time}
         </div>
